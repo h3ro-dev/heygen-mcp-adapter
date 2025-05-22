@@ -7,11 +7,20 @@ servers:
   - url: http://localhost:3001 # Example URL, will be replaced by actual deployment URL
     description: Local development server
 
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
 paths:
   /video/generate:
     post:
       summary: Generate a new video
       description: Submits a script to HeyGen for video generation using a specified avatar and voice.
+      security:
+        - bearerAuth: []
       requestBody:
         required: true
         content:
@@ -60,6 +69,8 @@ paths:
     get:
       summary: Get video status
       description: Retrieves the current status of a video generation task and the video URL if available.
+      security:
+        - bearerAuth: []
       parameters:
         - name: video_id
           in: path
