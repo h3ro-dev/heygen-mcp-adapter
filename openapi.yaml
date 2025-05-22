@@ -23,14 +23,22 @@ paths:
                   type: string
                   description: The script content for the video.
                   example: "Hello world, this is a test video."
+                  minLength: 1
+                  maxLength: 5000
                 avatar_id:
                   type: string
                   description: The ID of the HeyGen avatar to use.
                   example: "avatar_default_id"
+                  minLength: 1
+                  maxLength: 100
+                  pattern: '^[A-Za-z0-9_-]+$'
                 voice_id:
                   type: string
                   description: The ID of the HeyGen voice to use.
                   example: "voice_default_id"
+                  minLength: 1
+                  maxLength: 100
+                  pattern: '^[A-Za-z0-9_-]+$'
               required:
                 - script_text
                 - avatar_id
@@ -93,6 +101,9 @@ paths:
                     type: string
                     description: Error message if the video generation failed.
                     nullable: true
+                required:
+                  - video_id
+                  - status
         '404':
           description: Not Found - Video ID not found.
         '500':
