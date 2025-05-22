@@ -1,3 +1,5 @@
+import os
+from fastapi import FastAPI, HTTPException, Header, Depends, status
 from fastapi import FastAPI, HTTPException, Depends
 from pydantic import BaseModel
 from uuid import uuid4
@@ -34,9 +36,17 @@ async def create_video_with_heygen(req: "VideoRequest") -> dict:
 from heygen_client import generate_video as hg_generate_video, get_video_status as hg_get_video_status
 
 
+API_TOKEN = os.getenv("API_TOKEN", "dev-token")
+
 app = FastAPI(title="HeyGen MCP Adapter API")
 
 
+def verify_token(authorization: str = Header(...)):
+    if not authorization.startswith("Bearer "):
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
+    token = authorization.removeprefix("Bearer ").strip()
+    if token != API_TOKEN:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
 class Video(Base):
     __tablename__ = "videos"
 
@@ -108,7 +118,7 @@ async def get_video_status(video_id: str, db: Session = Depends(get_db)):
     }
 
 
-@app.post("/video/generate", status_code=202)
+@app.post("/video/generate", status_code=202, dependencies=[Depends(verify_token)])
 async def generate_video(req: VideoRequest):
     try:
         video_id = f"video_{uuid4().hex}"
@@ -137,7 +147,7 @@ async def generate_video(req: VideoRequest):
     return {"video_id": video_id, "status": "PENDING"}
 
 
-@app.get("/video/{video_id}/status", response_model=VideoStatus)
+@app.get("/video/{video_id}/status", response_model=VideoStatus, dependencies=[Depends(verify_token)])
 async def get_video_status(video_id: str):
     try:
         data = video_store.get(video_id)

@@ -26,6 +26,16 @@ Video metadata is stored in a local `SQLite` database (`videos.db`) created auto
 
 Refer to `openapi.yaml` for the API specification.
 
+## Authentication
+
+Set the `API_TOKEN` environment variable to define the token expected by the
+server (defaults to `dev-token`). Requests to `/video/generate` and
+`/video/{video_id}/status` must include this token using the `Authorization`
+header:
+
+```bash
+curl -H "Authorization: Bearer $API_TOKEN" http://localhost:8000/video/generate
+=======
 ## Docker
 
 To build and run the application using Docker:
